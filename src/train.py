@@ -8,6 +8,7 @@ from tqdm import tqdm
 from torchvision.utils import save_image
 from discriminator import Discriminator
 from generator import Generator
+import csv
 
 
 LR = 1e-5  # Learning rate
@@ -28,16 +29,18 @@ LR_SCH = False  # If True, use LR scheduling
 
 TRAIN_DIR = "data/train/"  # Training directory
 TEST_DIR = "data/test/"  # Test directory
+SAVED_IMG = "saved_images/"
+STATS_DIR = "stats/"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
 SAVED_GEN_X = "models/genx.pth.tar"
 SAVED_GEN_Y = "models/geny.pth.tar"
 SAVED_DISC_X = "models/discx.pth.tar"
 SAVED_DISC_Y = "models/discy.pth.tar"
-SAVED_IMG = "saved_images/"
-STATS_DIR = "stats/"
+# REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
 DATA_X = "horses"
 DATA_Y = "zebras"
-
+# REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
+RUN_NAME = "horse2zebra"
 
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
@@ -46,7 +49,9 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
     
     pbar = tqdm(desc=f"Epoch {epoch}", total=len(loader))
     for idx, (X, Y) in enumerate(loader):
-        total_loss = 0.0
+        identity_loss = torch.tensor(0.0)
+        Disc_weight_loss = torch.tensor(0.0)
+        Gen_weight_loss = torch.tensor(0.0)
 
         with torch.cuda.amp.autocast():
             opt_disc.zero_grad()
@@ -105,9 +110,24 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
             scaler_gen.update()
 
         total_loss = Gen_loss.detach() + Disc_loss.detach()
-        # TODO: Save losses to stats every 10 ind
+        # Save losses to stats every 10 ind
         if idx % 10 == 0:
-            pass
+            try:
+                open(f"{STATS_DIR}{RUN_NAME}.csv", "r")
+                f = open(f"{STATS_DIR}{RUN_NAME}.csv", "a")
+                writer = csv.writer(f)
+                csv_line = [total_loss.item(), Disc_loss.item(), Gen_loss.item(), cycle_loss.item(), 
+                            identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
+                writer.writerow(csv_line)
+            except FileNotFoundError:
+                f = open(f"{STATS_DIR}{RUN_NAME}.csv", "w")
+                writer = csv.writer(f)
+                head_line = ["total_loss", "Disc_loss", "Gen_loss", "cycle_loss", "identity_loss", "Disc_weight_loss", "Gen_weight_loss"]
+                csv_line = [total_loss.item(), Disc_loss.item(), Gen_loss.item(), cycle_loss.item(), 
+                            identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
+                writer.writerow(head_line)
+                writer.writerow(csv_line)
+            f.close()
             # Save total_loss, gen_loss, disc_loss, weight_reg_cost, etc.
 
         # Save images to saved_images every 200
@@ -116,6 +136,24 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
             save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}train_Y_fake_{epoch}_{idx}.png")
             save_image(X, f"{SAVED_IMG}train_X_real_{epoch}_{idx}.png")
             save_image(Y, f"{SAVED_IMG}train_Y_real_{epoch}_{idx}.png")
+        pbar.update(1)
+
+    pbar.close()
+
+
+def test(gen_X, gen_Y, loader):
+    pbar = tqdm(desc=f"Test", total=len(loader))
+
+    for idx, (X, Y) in enumerate(loader):
+        with torch.cuda.amp.autocast():
+            fake_X = gen_X(Y)
+            fake_Y = gen_Y(X)
+
+        # Save images to saved_images=
+        save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{idx}_test_X_fake.png")
+        save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{idx}_test_Y_fake.png")
+        save_image(X, f"{SAVED_IMG}{idx}_test_X_real.png")
+        save_image(Y, f"{SAVED_IMG}{idx}_test_Y_real.png")
         pbar.update(1)
 
     pbar.close()
@@ -180,13 +218,27 @@ def main(load_model=False, save_model=True):
             save_checkpoint(gen_Y, gen_optimizer, filename=SAVED_GEN_Y)
             save_checkpoint(disc_X, disc_optimizer, filename=SAVED_DISC_X)
             save_checkpoint(disc_Y, disc_optimizer, filename=SAVED_DISC_Y)
+    
+    print("Training complete!")
+    # Create dataset
+    dataset = GANImageDataset(TEST_DIR + DATA_X, TEST_DIR + DATA_Y)
+
+    loader = DataLoader(
+        dataset,
+        batch_size=BSZ,
+        shuffle=True,
+        num_workers=NUM_WRKS,
+        pin_memory=True
+    )
+
+    test(gen_X, gen_Y, loader)
+    
 
 
 main(load_model=LOAD, save_model=SAVE)
 # TODO: Weight regularization, remember to normalize by the number of parameters of generator and discriminator
-# TODO: LR scheduling
-# TODO: Save losses to stats every 10 ind
-# TODO: Use test set to generate results (fake_X, fake_Y)
+# TODO: LR scheduling (set it up as an option)
+# TODO: Use a different optimizer than Adam
 
 
 
