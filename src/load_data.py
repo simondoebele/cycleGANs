@@ -32,8 +32,8 @@ class GANImageDataset(Dataset):
 
     def __getitem__(self, index):
     	# get matching "real" (A) and "style" (B) images
-    	A_path = self.A_file[index % len(self.A_file)]
-    	B_path = self.B_file[random.randint(0, len(self.B_file) - 1)]
+        A_path = self.A_file[index % len(self.A_file)]
+        B_path = self.B_file[random.randint(0, len(self.B_file) - 1)]
         A = self.transform(pil_loader(A_path))
         B = self.transform(pil_loader(B_path))
 
