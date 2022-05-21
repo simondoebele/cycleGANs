@@ -4,6 +4,7 @@ import glob
 import random
 import os
 from PIL import Image
+from torchvision import transforms as trans
 
 
 def pil_loader(path):
