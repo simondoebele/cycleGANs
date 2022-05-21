@@ -1,4 +1,8 @@
 # exclude data
-data/*
+data/train/*/*.jpg
+data/test/*/*.jpg
 env/*
 src/__pycache__/*
+models/*.tar
+saved_images/*.png
+stats/*.csv

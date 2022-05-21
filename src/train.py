@@ -1,7 +1,5 @@
-from imageio import save
 import torch
 from load_data import GANImageDataset
-import sys
 from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.optim as optim
@@ -15,8 +13,8 @@ from generator import Generator
 LR = 1e-5  # Learning rate
 BETA1 = 0.5  # Beta 1 for Adam
 BETA2 = 0.999  # Beta 2 for Adam
-BSZ = 2  # Batch size
-NUM_WRKS = 1  # Number of workers for dataloaders
+BSZ = 1  # Batch size
+NUM_WRKS = 4  # Number of workers for dataloaders
 EPOCHS = 10  # Number of epochs for training
 L_CYCLE = 10  # Cycle loss weight
 L_IDENT = 0.1  # Identity loss 
@@ -29,12 +27,14 @@ W_REG = False  # If True, use L2 regularization
 LR_SCH = False  # If True, use LR scheduling
 
 TRAIN_DIR = "data/train/"  # Training directory
-SAVED_GEN_X = "genx.pth.tar"
-SAVED_GEN_Y = "geny.pth.tar"
-SAVED_DISC_X = "discx.pth.tar"
-SAVED_DISC_Y = "discy.pth.tar"
-SAVED_IMG = "../saved_images/"
-STATS_DIR = "../states/"
+TEST_DIR = "data/test/"  # Test directory
+# REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
+SAVED_GEN_X = "models/genx.pth.tar"
+SAVED_GEN_Y = "models/geny.pth.tar"
+SAVED_DISC_X = "models/discx.pth.tar"
+SAVED_DISC_Y = "models/discy.pth.tar"
+SAVED_IMG = "saved_images/"
+STATS_DIR = "stats/"
 DATA_X = "horses"
 DATA_Y = "zebras"
 
@@ -104,16 +104,18 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
             scaler_gen.step(opt_gen)
             scaler_gen.update()
 
-
         total_loss = Gen_loss.detach() + Disc_loss.detach()
         # TODO: Save losses to stats every 10 ind
+        if idx % 10 == 0:
+            pass
+            # Save total_loss, gen_loss, disc_loss, weight_reg_cost, etc.
 
         # Save images to saved_images every 200
-        if idx % 200 == 0:
-            save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}X_fake_{idx}.png")
-            save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}Y_fake_{idx}.png")
-            save_image(X, f"{SAVED_IMG}X_real_{idx}.png")
-            save_image(Y, f"{SAVED_IMG}X_real_{idx}.png")
+        if idx % 400 == 0:
+            save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}train_X_fake_{epoch}_{idx}.png")
+            save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}train_Y_fake_{epoch}_{idx}.png")
+            save_image(X, f"{SAVED_IMG}train_X_real_{epoch}_{idx}.png")
+            save_image(Y, f"{SAVED_IMG}train_Y_real_{epoch}_{idx}.png")
         pbar.update(1)
 
     pbar.close()
@@ -181,10 +183,10 @@ def main(load_model=False, save_model=True):
 
 
 main(load_model=LOAD, save_model=SAVE)
-# TODO: Weight regularization
+# TODO: Weight regularization, remember to normalize by the number of parameters of generator and discriminator
 # TODO: LR scheduling
-# TODO: Delete unnecessary files
 # TODO: Save losses to stats every 10 ind
+# TODO: Use test set to generate results (fake_X, fake_Y)
 
 
 
