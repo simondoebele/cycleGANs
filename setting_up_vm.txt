@@ -1,0 +1,39 @@
+In google cloud:
+- compute engine -> new instance -> Choose from v100 > p100 > k80
+- Use enough storage (~50gb)
+- Use Ubuntu 20.04
+
+Before installing Git in Ubuntu, first, update your Ubuntu system’s package repository:
+  - sudo apt update
+  - sudo apt upgrade
+
+Then Install git: 
+  - sudo apt install git
+  - git --version
+  - git config --global user.name MoellerO
+  - git config --global user.email oliver.moeller@die-olchies.de
+
+Set up ssh keys: 
+  - cd ~/.ssh 
+  - ssh-keygen (Press Enter Enter)
+  - cat ~/.ssh/id_rsa.pub <- Prints public key to console so you can copy it
+  - Go to Git settings --> SSH and GPG keys, create new ssh key and paste in the public key
+
+Create Git environment:
+  - cd .. (go to home or wherever)
+  - mkdir git_environment
+  - cd git_environment
+  - git clone git@github.com:MoellerO/cycleGAN.git
+
+Install all packages:
+  - sudo apt install python3-pip
+  - pip3 install albumentations
+  - pip3 install tqdm
+  - pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
+
+Install gpu drivers:
+  - curl https://raw.githubusercontent.com/GoogleCloudPlatform/compute-gpu-installation/main/linux/install_gpu_driver.py --output install_gpu_driver.py 
+  - sudo python3 install_gpu_driver.py
+
+Check if installed: 
+  - sudo nvidia-smi
