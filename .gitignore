@@ -1,3 +1,4 @@
 # exclude data
 data/*
 env/*
+src/__pycache__/*

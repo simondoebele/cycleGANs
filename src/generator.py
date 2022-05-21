@@ -78,7 +78,7 @@ class Generator(nn.Module):
         self.to(DEVICE)
 
     def forward(self, x):
-        x.to(DEVICE)
+        x = x.to(DEVICE)
         x = self.initial(x)
         for layer in self.down_blocks:
             x = layer(x)

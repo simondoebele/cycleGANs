@@ -38,7 +38,7 @@ class Discriminator(nn.Module):
         self.to(DEVICE)
     
     def forward(self, x):
-        x.to(DEVICE)
+        x = x.to(DEVICE)
         x = self.initial(x)
         return torch.sigmoid(self.model(x))
 
