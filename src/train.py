@@ -9,6 +9,7 @@ from torchvision.utils import save_image
 from discriminator import Discriminator
 from generator import Generator
 import csv
+from device import DEVICE
 
 
 LR = 1e-5  # Learning rate
@@ -49,6 +50,8 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
     
     pbar = tqdm(desc=f"Epoch {epoch}", total=len(loader))
     for idx, (X, Y) in enumerate(loader):
+        X = X.to(DEVICE)
+        Y = Y.to(DEVICE)
         identity_loss = torch.tensor(0.0)
         Disc_weight_loss = torch.tensor(0.0)
         Gen_weight_loss = torch.tensor(0.0)
