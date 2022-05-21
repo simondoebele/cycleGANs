@@ -10,8 +10,8 @@ Before installing Git in Ubuntu, first, update your Ubuntu system’s package re
 Then Install git: 
   - sudo apt install git
   - git --version
-  - git config --global user.name MoellerO
-  - git config --global user.email oliver.moeller@die-olchies.de
+  - git config --global user.name MoellerO <- your username
+  - git config --global user.email oliver.moeller@die-olchies.de <- your mail
 
 Set up ssh keys: 
   - cd ~/.ssh 
@@ -23,7 +23,7 @@ Create Git environment:
   - cd .. (go to home or wherever)
   - mkdir git_environment
   - cd git_environment
-  - git clone git@github.com:MoellerO/cycleGAN.git
+  - git clone git@github.com:simondoebele/dd2424-finalProject.git
 
 Install all packages:
   - sudo apt install python3-pip
