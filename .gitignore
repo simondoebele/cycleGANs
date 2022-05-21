@@ -1,6 +1,4 @@
 # exclude data
-data/train/*/*.jpg
-data/test/*/*.jpg
 env/*
 src/__pycache__/*
 models/*.tar
