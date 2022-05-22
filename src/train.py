@@ -32,16 +32,16 @@ TRAIN_DIR = "data/train/"  # Training directory
 TEST_DIR = "data/test/"  # Test directory
 SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
+
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-SAVED_GEN_X = "models/genx_idloss.pth.tar"
-SAVED_GEN_Y = "models/geny_idloss.pth.tar"
-SAVED_DISC_X = "models/discx_idloss.pth.tar"
-SAVED_DISC_Y = "models/discy_idloss.pth.tar"
+RUN_NAME = "horse2zebra_idloss"
+SAVED_GEN_X = "models/genx_{RUN_NAME}.pth.tar"
+SAVED_GEN_Y = "models/geny_{RUN_NAME}.pth.tar"
+SAVED_DISC_X = "models/discx_{RUN_NAME}.pth.tar"
+SAVED_DISC_Y = "models/discy_{RUN_NAME}.pth.tar"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
 DATA_X = "horses"
 DATA_Y = "zebras"
-# REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "horse2zebra_idloss"
 
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
@@ -138,10 +138,10 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
 
         # Save images to saved_images every 200
         if idx % 400 == 0:
-            save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}train_X_fake_{epoch}_{idx}.png")
-            save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}train_Y_fake_{epoch}_{idx}.png")
-            save_image(X, f"{SAVED_IMG}train_X_real_{epoch}_{idx}.png")
-            save_image(Y, f"{SAVED_IMG}train_Y_real_{epoch}_{idx}.png")
+            save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_fake.png")
+            save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_Y_fake.png")
+            save_image(X, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_real.png")
+            save_image(Y, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_Y_real.png")
         pbar.update(1)
 
     pbar.close()
@@ -156,10 +156,10 @@ def test(gen_X, gen_Y, loader):
             fake_Y = gen_Y(X)
 
         # Save images to saved_images=
-        save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{idx}_test_X_fake.png")
-        save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{idx}_test_Y_fake.png")
-        save_image(X, f"{SAVED_IMG}{idx}_test_X_real.png")
-        save_image(Y, f"{SAVED_IMG}{idx}_test_Y_real.png")
+        save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_fake.png")
+        save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_Y_fake.png")
+        save_image(X, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_real.png")
+        save_image(Y, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_Y_real.png")
         pbar.update(1)
 
     pbar.close()
@@ -245,6 +245,9 @@ main(load_model=LOAD, save_model=SAVE)
 # TODO: Weight regularization, remember to normalize by the number of parameters of generator and discriminator
 # TODO: LR scheduling (set it up as an option)
 # TODO: Use a different optimizer than Adam
+# TODO: Add different dataset under data/train and data/test
+# TODO: Implement extension with mask
+
 
 
 
