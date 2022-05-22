@@ -10,6 +10,7 @@ from discriminator import Discriminator
 from generator import Generator
 import csv
 from device import DEVICE
+import os
 
 
 LR = 1e-4  # Learning rate
@@ -138,6 +139,10 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
 
         # Save images to saved_images every 200
         if idx % 400 == 0:
+            try:
+                os.mkdir(f"{SAVED_IMG}{RUN_NAME}/train/")
+            except FileExistsError:
+                pass
             save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_fake.png")
             save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_Y_fake.png")
             save_image(X, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_real.png")
@@ -156,6 +161,10 @@ def test(gen_X, gen_Y, loader):
             fake_Y = gen_Y(X)
 
         # Save images to saved_images=
+        try:
+            os.mkdir(f"{SAVED_IMG}{RUN_NAME}/test/")
+        except FileExistsError:
+            pass
         save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_fake.png")
         save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_Y_fake.png")
         save_image(X, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_real.png")
