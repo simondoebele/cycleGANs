@@ -12,7 +12,7 @@ import csv
 from device import DEVICE
 
 
-LR = 1e-5  # Learning rate
+LR = 2e-4  # Learning rate
 BETA1 = 0.5  # Beta 1 for Adam
 BETA2 = 0.999  # Beta 2 for Adam
 BSZ = 1  # Batch size
@@ -33,15 +33,15 @@ TEST_DIR = "data/test/"  # Test directory
 SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-SAVED_GEN_X = "models/genx.pth.tar"
-SAVED_GEN_Y = "models/geny.pth.tar"
-SAVED_DISC_X = "models/discx.pth.tar"
-SAVED_DISC_Y = "models/discy.pth.tar"
+SAVED_GEN_X = "models/genx_highlr.pth.tar"
+SAVED_GEN_Y = "models/geny_highlr.pth.tar"
+SAVED_DISC_X = "models/discx_highlr.pth.tar"
+SAVED_DISC_Y = "models/discy_highlr.pth.tar"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
 DATA_X = "horses"
 DATA_Y = "zebras"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "horse2zebra"
+RUN_NAME = "horse2zebra_highlr"
 
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
