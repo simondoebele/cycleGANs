@@ -5,6 +5,7 @@ from PIL import Image
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+
 def pil_loader(path):
     # open path as file to avoid ResourceWarning (https://github.com/python-pillow/Pillow/issues/835)
     with open(path, 'rb') as f:
@@ -48,7 +49,7 @@ class GANImageDataset(Dataset):
             transformed = self.transform(image = A_img, image0=B_img)
             A_img = transformed["image"]
             B_img = transformed["image0"]
-
+        
         return A_img, B_img
 
 

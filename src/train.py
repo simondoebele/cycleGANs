@@ -12,19 +12,19 @@ import csv
 from device import DEVICE
 
 
-LR = 2e-4  # Learning rate
+LR = 1e-4  # Learning rate
 BETA1 = 0.5  # Beta 1 for Adam
 BETA2 = 0.999  # Beta 2 for Adam
 BSZ = 1  # Batch size
 NUM_WRKS = 4  # Number of workers for dataloaders
 EPOCHS = 50  # Number of epochs for training
-L_CYCLE = 1  # Cycle loss weight
+L_CYCLE = 10  # Cycle loss weight
 L_IDENT = 0.1  # Identity loss 
 L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
-ID_LOSS = True  # If True, use id loss
+ID_LOSS = False  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
 LR_SCH = False  # If True, use LR scheduling
 
@@ -60,21 +60,20 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
         Gen_weight_loss = torch.tensor(0.0)
 
         with torch.cuda.amp.autocast():
-        
             fake_X = gen_X(Y)
             d_X_real = disc_X(X)
             d_X_fake = disc_X(fake_X.detach())
             X_reals += d_X_real.mean().item()
             X_fakes += d_X_fake.mean().item()
             D_X_real_loss = MSE(d_X_real, torch.ones_like(d_X_real))
-            D_X_fake_loss = MSE(d_X_fake, torch.ones_like(d_X_fake))
+            D_X_fake_loss = MSE(d_X_fake, torch.zeros_like(d_X_fake))
             D_X_Loss = D_X_fake_loss + D_X_real_loss
 
             fake_Y = gen_Y(X)
             d_Y_real = disc_Y(Y)
             d_Y_fake = disc_Y(fake_Y.detach())
             D_Y_real_loss = MSE(d_Y_real, torch.ones_like(d_Y_real))
-            D_Y_fake_loss = MSE(d_Y_fake, torch.ones_like(d_Y_fake))
+            D_Y_fake_loss = MSE(d_Y_fake, torch.zeros_like(d_Y_fake))
             D_Y_Loss = D_Y_fake_loss + D_Y_real_loss
 
             Disc_loss = (D_X_Loss + D_Y_Loss)/2
