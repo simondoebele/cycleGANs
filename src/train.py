@@ -49,6 +49,9 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
              lr_sched=None):
     
     pbar = tqdm(desc=f"Epoch {epoch}", total=len(loader))
+    X_reals = 0
+    X_fakes = 0
+
     for idx, (X, Y) in enumerate(loader):
         X = X.to(DEVICE)
         Y = Y.to(DEVICE)
@@ -57,11 +60,12 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
         Gen_weight_loss = torch.tensor(0.0)
 
         with torch.cuda.amp.autocast():
-            opt_disc.zero_grad()
         
             fake_X = gen_X(Y)
             d_X_real = disc_X(X)
             d_X_fake = disc_X(fake_X.detach())
+            X_reals += d_X_real.mean().item()
+            X_fakes += d_X_fake.mean().item()
             D_X_real_loss = MSE(d_X_real, torch.ones_like(d_X_real))
             D_X_fake_loss = MSE(d_X_fake, torch.ones_like(d_X_fake))
             D_X_Loss = D_X_fake_loss + D_X_real_loss
@@ -73,17 +77,16 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
             D_Y_fake_loss = MSE(d_Y_fake, torch.ones_like(d_Y_fake))
             D_Y_Loss = D_Y_fake_loss + D_Y_real_loss
 
-            Disc_loss = D_X_Loss + D_Y_Loss
+            Disc_loss = (D_X_Loss + D_Y_Loss)/2
             if weight_reg:
                 pass
-
+            
+            opt_disc.zero_grad()
             scaler_disc.scale(Disc_loss).backward()
             scaler_disc.step(opt_disc)
             scaler_disc.update()
 
         with torch.cuda.amp.autocast():
-            opt_gen.zero_grad()
-
             # Adversarial loss
             d_X_fake = disc_X(fake_X)
             d_Y_fake = disc_Y(fake_Y)
@@ -107,7 +110,8 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
                 Gen_loss += L_IDENT * identity_loss
             if weight_reg:
                 pass
-
+                
+            opt_gen.zero_grad()
             scaler_gen.scale(Gen_loss).backward()
             scaler_gen.step(opt_gen)
             scaler_gen.update()
