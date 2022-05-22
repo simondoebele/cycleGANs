@@ -44,6 +44,19 @@ SAVED_DISC_Y = "models/discy_{RUN_NAME}.pth.tar"
 DATA_X = "horses"
 DATA_Y = "zebras"
 
+try:
+    os.mkdir(f"{SAVED_IMG}{RUN_NAME}/")
+except FileExistsError:
+    pass
+try:
+    os.mkdir(f"{SAVED_IMG}{RUN_NAME}/train")
+except FileExistsError:
+    pass
+try:
+    os.mkdir(f"{SAVED_IMG}{RUN_NAME}/test")
+except FileExistsError:
+    pass
+
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
              scaler_disc, scaler_gen, epoch, id_loss=False, weight_reg=False, 
@@ -139,10 +152,6 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
 
         # Save images to saved_images every 200
         if idx % 400 == 0:
-            try:
-                os.mkdir(f"{SAVED_IMG}{RUN_NAME}/train/")
-            except FileExistsError:
-                pass
             save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_fake.png")
             save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_Y_fake.png")
             save_image(X, f"{SAVED_IMG}{RUN_NAME}/train/{epoch}_{idx}_X_real.png")
@@ -160,11 +169,7 @@ def test(gen_X, gen_Y, loader):
             fake_X = gen_X(Y)
             fake_Y = gen_Y(X)
 
-        # Save images to saved_images=
-        try:
-            os.mkdir(f"{SAVED_IMG}{RUN_NAME}/test/")
-        except FileExistsError:
-            pass
+        # Save images to saved_images
         save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_fake.png")
         save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_Y_fake.png")
         save_image(X, f"{SAVED_IMG}{RUN_NAME}/test/{idx}_X_real.png")
