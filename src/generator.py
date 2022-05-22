@@ -45,7 +45,7 @@ class Generator(nn.Module):
     def __init__(self, img_channels, num_features=64, num_residuals=9):
         super().__init__()
         self.initial = nn.Sequential(
-            nn.Conv2d(img_channels, num_features=num_features, kernel_size=7, stride=1, padding=3,
+            nn.Conv2d(img_channels, num_features, kernel_size=7, stride=1, padding=3,
             padding_mode='reflect'),
             nn.ReLU(inplace=True)
         )
