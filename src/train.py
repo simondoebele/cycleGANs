@@ -35,7 +35,7 @@ SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
 
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "horse2zebra_idloss"
+RUN_NAME = "horse2zebra_test"
 SAVED_GEN_X = "models/genx_{RUN_NAME}.pth.tar"
 SAVED_GEN_Y = "models/geny_{RUN_NAME}.pth.tar"
 SAVED_DISC_X = "models/discx_{RUN_NAME}.pth.tar"
