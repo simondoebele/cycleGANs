@@ -19,7 +19,9 @@ class GANImageDataset(Dataset):
                                 A.Resize(width=256, height=256),
                                 A.HorizontalFlip(p=0.5),
                                 A.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5], max_pixel_value=255),
-                                ToTensorV2()])
+                                ToTensorV2()],
+                                additional_targets={"image0": "image"}
+                                )
 
         self.A_images = os.listdir(root_Images_A)
         self.B_images = os.listdir(root_Images_B)
@@ -43,8 +45,9 @@ class GANImageDataset(Dataset):
         B_img = np.array(pil_loader(B_path))
 
         if self.transform:
-            A_img = self.transform(image = A_img)["image"]
-            B_img = self.transform(image = B_img)["image"]
+            transformed = self.transform(image = A_img, image0=B_img)
+            A_img = transformed["image"]
+            B_img = transformed["image0"]
 
         return A_img, B_img
 

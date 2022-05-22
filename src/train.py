@@ -11,7 +11,7 @@ from generator import Generator
 import csv
 
 
-LR = 1e-5  # Learning rate
+LR = 2e-4  # Learning rate
 BETA1 = 0.5  # Beta 1 for Adam
 BETA2 = 0.999  # Beta 2 for Adam
 BSZ = 1  # Batch size
