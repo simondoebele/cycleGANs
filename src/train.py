@@ -19,12 +19,12 @@ BSZ = 1  # Batch size
 NUM_WRKS = 4  # Number of workers for dataloaders
 EPOCHS = 50  # Number of epochs for training
 L_CYCLE = 10  # Cycle loss weight
-L_IDENT = 0.1  # Identity loss 
+L_IDENT = 0.1  # Identity loss
 L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
-ID_LOSS = False  # If True, use id loss
+ID_LOSS = True  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
 LR_SCH = False  # If True, use LR scheduling
 
@@ -44,10 +44,10 @@ DATA_Y = "zebras"
 RUN_NAME = "horse2zebra_idloss"
 
 
-def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
-             scaler_disc, scaler_gen, epoch, id_loss=False, weight_reg=False, 
+def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
+             scaler_disc, scaler_gen, epoch, id_loss=False, weight_reg=False,
              lr_sched=None):
-    
+
     pbar = tqdm(desc=f"Epoch {epoch}", total=len(loader))
     X_reals = 0
     X_fakes = 0
@@ -79,7 +79,7 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
             Disc_loss = (D_X_Loss + D_Y_Loss)/2
             if weight_reg:
                 pass
-            
+
             opt_disc.zero_grad()
             scaler_disc.scale(Disc_loss).backward()
             scaler_disc.step(opt_disc)
@@ -109,7 +109,7 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
                 Gen_loss += L_IDENT * identity_loss
             if weight_reg:
                 pass
-                
+
             opt_gen.zero_grad()
             scaler_gen.scale(Gen_loss).backward()
             scaler_gen.step(opt_gen)
@@ -122,14 +122,15 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
                 open(f"{STATS_DIR}{RUN_NAME}.csv", "r")
                 f = open(f"{STATS_DIR}{RUN_NAME}.csv", "a")
                 writer = csv.writer(f)
-                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(), 
+                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(),
                             identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
                 writer.writerow(csv_line)
             except FileNotFoundError:
                 f = open(f"{STATS_DIR}{RUN_NAME}.csv", "w")
                 writer = csv.writer(f)
-                head_line = ["total_loss", "D_loss", "G_loss", "cycle_loss", "identity_loss", "Disc_weight_loss", "Gen_weight_loss"]
-                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(), 
+                head_line = ["total_loss", "D_loss", "G_loss", "cycle_loss",
+                             "identity_loss", "Disc_weight_loss", "Gen_weight_loss"]
+                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(),
                             identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
                 writer.writerow(head_line)
                 writer.writerow(csv_line)
@@ -138,8 +139,10 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
 
         # Save images to saved_images every 200
         if idx % 400 == 0:
-            save_image(fake_X*0.5 + 0.5, f"{SAVED_IMG}train_X_fake_{epoch}_{idx}.png")
-            save_image(fake_Y*0.5 + 0.5, f"{SAVED_IMG}train_Y_fake_{epoch}_{idx}.png")
+            save_image(fake_X*0.5 + 0.5,
+                       f"{SAVED_IMG}train_X_fake_{epoch}_{idx}.png")
+            save_image(fake_Y*0.5 + 0.5,
+                       f"{SAVED_IMG}train_Y_fake_{epoch}_{idx}.png")
             save_image(X, f"{SAVED_IMG}train_X_real_{epoch}_{idx}.png")
             save_image(Y, f"{SAVED_IMG}train_Y_real_{epoch}_{idx}.png")
         pbar.update(1)
@@ -193,7 +196,6 @@ def main(load_model=False, save_model=True):
         load_checkpoint(SAVED_DISC_X, disc_X, disc_optimizer, LR)
         load_checkpoint(SAVED_DISC_Y, disc_Y, disc_optimizer, LR)
 
-
     # Create dataset
     dataset = GANImageDataset(TRAIN_DIR + DATA_X, TRAIN_DIR + DATA_Y)
 
@@ -213,8 +215,8 @@ def main(load_model=False, save_model=True):
     lr_scheduler = None
 
     for epoch in range(EPOCHS):
-        train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, 
-                 disc_optimizer, gen_optimizer, L1_loss, MSE_loss, 
+        train_fn(disc_X, disc_Y, gen_X, gen_Y, loader,
+                 disc_optimizer, gen_optimizer, L1_loss, MSE_loss,
                  d_scaler, g_scaler, epoch, id_loss=ID_LOSS, weight_reg=W_REG,
                  lr_sched=lr_scheduler)
 
@@ -224,7 +226,7 @@ def main(load_model=False, save_model=True):
             save_checkpoint(gen_Y, gen_optimizer, filename=SAVED_GEN_Y)
             save_checkpoint(disc_X, disc_optimizer, filename=SAVED_DISC_X)
             save_checkpoint(disc_Y, disc_optimizer, filename=SAVED_DISC_Y)
-    
+
     print("Training complete!")
     # Create dataset
     dataset = GANImageDataset(TEST_DIR + DATA_X, TEST_DIR + DATA_Y)
@@ -238,15 +240,9 @@ def main(load_model=False, save_model=True):
     )
 
     test(gen_X, gen_Y, loader)
-    
 
 
 main(load_model=LOAD, save_model=SAVE)
 # TODO: Weight regularization, remember to normalize by the number of parameters of generator and discriminator
 # TODO: LR scheduling (set it up as an option)
 # TODO: Use a different optimizer than Adam
-
-
-
-
-
