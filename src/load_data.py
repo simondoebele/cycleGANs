@@ -4,6 +4,7 @@ from torch.utils.data import Dataset
 from PIL import Image
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
+from random import shuffle, seed
 
 
 def pil_loader(path):
@@ -13,7 +14,7 @@ def pil_loader(path):
         return img.convert('RGB')
 
 class GANImageDataset(Dataset):
-    def __init__(self, root_Images_A, root_Images_B):
+    def __init__(self, root_Images_A, root_Images_B, portion=1.0):
         self.root_Images_A = root_Images_A
         self.root_Images_B = root_Images_B
         self.transform = A.Compose([
@@ -26,6 +27,13 @@ class GANImageDataset(Dataset):
 
         self.A_images = os.listdir(root_Images_A)
         self.B_images = os.listdir(root_Images_B)
+        
+        seed(42)
+        shuffle(self.A_images)
+        shuffle(self.B_images)
+
+        self.A_images = self.A_images[:int(portion * len(self.A_images))]
+        self.B_images = self.B_images[:int(portion * len(self.B_images))]
 
         self.length_dataset = max(len(self.A_images), len(self.B_images)) # 1000, 1500
         self.A_num_images = len(self.A_images)

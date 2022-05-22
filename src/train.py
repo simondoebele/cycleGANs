@@ -35,14 +35,14 @@ SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
 
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "horse2zebra_test"
+RUN_NAME = "selfie2anime_vanilla"
 SAVED_GEN_X = "models/genx_{RUN_NAME}.pth.tar"
 SAVED_GEN_Y = "models/geny_{RUN_NAME}.pth.tar"
 SAVED_DISC_X = "models/discx_{RUN_NAME}.pth.tar"
 SAVED_DISC_Y = "models/discy_{RUN_NAME}.pth.tar"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-DATA_X = "horses"
-DATA_Y = "zebras"
+DATA_X = "selfies"
+DATA_Y = "anime"
 
 try:
     os.mkdir(f"{SAVED_IMG}{RUN_NAME}/")
@@ -209,7 +209,11 @@ def main(load_model=False, save_model=True):
 
 
     # Create dataset
-    dataset = GANImageDataset(TRAIN_DIR + DATA_X, TRAIN_DIR + DATA_Y)
+    if DATA_X == "selfies":
+        portion = 0.5
+    else:
+        portion = 1.0
+    dataset = GANImageDataset(TRAIN_DIR + DATA_X, TRAIN_DIR + DATA_Y, portion=portion)
 
     loader = DataLoader(
         dataset,
