@@ -123,14 +123,14 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
                 open(f"{STATS_DIR}{RUN_NAME}.csv", "r")
                 f = open(f"{STATS_DIR}{RUN_NAME}.csv", "a")
                 writer = csv.writer(f)
-                csv_line = [total_loss.item(), Disc_loss.item(), Gen_loss.item(), cycle_loss.item(), 
+                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(), 
                             identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
                 writer.writerow(csv_line)
             except FileNotFoundError:
                 f = open(f"{STATS_DIR}{RUN_NAME}.csv", "w")
                 writer = csv.writer(f)
-                head_line = ["total_loss", "Disc_loss", "Gen_loss", "cycle_loss", "identity_loss", "Disc_weight_loss", "Gen_weight_loss"]
-                csv_line = [total_loss.item(), Disc_loss.item(), Gen_loss.item(), cycle_loss.item(), 
+                head_line = ["total_loss", "D_loss", "G_loss", "cycle_loss", "identity_loss", "Disc_weight_loss", "Gen_weight_loss"]
+                csv_line = [total_loss.item(), Disc_loss.item(), G_loss.item(), cycle_loss.item(), 
                             identity_loss.item(), Disc_weight_loss.item(), Gen_weight_loss.item()]
                 writer.writerow(head_line)
                 writer.writerow(csv_line)
