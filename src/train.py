@@ -17,14 +17,14 @@ BETA1 = 0.5  # Beta 1 for Adam
 BETA2 = 0.999  # Beta 2 for Adam
 BSZ = 1  # Batch size
 NUM_WRKS = 4  # Number of workers for dataloaders
-EPOCHS = 100  # Number of epochs for training
-L_CYCLE = 10  # Cycle loss weight
+EPOCHS = 50  # Number of epochs for training
+L_CYCLE = 1  # Cycle loss weight
 L_IDENT = 0.1  # Identity loss 
 L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
-ID_LOSS = False  # If True, use id loss
+ID_LOSS = True  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
 LR_SCH = False  # If True, use LR scheduling
 
@@ -33,15 +33,15 @@ TEST_DIR = "data/test/"  # Test directory
 SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-SAVED_GEN_X = "models/genx_highlr.pth.tar"
-SAVED_GEN_Y = "models/geny_highlr.pth.tar"
-SAVED_DISC_X = "models/discx_highlr.pth.tar"
-SAVED_DISC_Y = "models/discy_highlr.pth.tar"
+SAVED_GEN_X = "models/genx_idloss.pth.tar"
+SAVED_GEN_Y = "models/geny_idloss.pth.tar"
+SAVED_DISC_X = "models/discx_idloss.pth.tar"
+SAVED_DISC_Y = "models/discy_idloss.pth.tar"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
 DATA_X = "horses"
 DATA_Y = "zebras"
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "horse2zebra_highlr"
+RUN_NAME = "horse2zebra_idloss"
 
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
