@@ -27,11 +27,11 @@ L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
-ID_LOSS = False  # If True, use id loss
+ID_LOSS = True  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
-LR_SCH_LIN = True  # If True, use LR scheduling with linear decay
+LR_SCH_LIN = False  # If True, use LR scheduling with linear decay
 LR_SCH_START_FACTOR = 0.5 # start factor for LR_SCH_STEP (initial LR is multiplied by this)
-LR_SCH_CYC = False  # If True, use LR scheduling with cyclic LR
+LR_SCH_CYC = True  # If True, use LR scheduling with cyclic LR
 LR_MIN_CYC = 1e-5 # min for cyclic LR
 LR_MAX_CYC = 1e-1 # max for cyclic LR
 
