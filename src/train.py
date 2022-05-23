@@ -21,7 +21,8 @@ BSZ = 1  # Batch size
 NUM_WRKS = 4  # Number of workers for dataloaders
 EPOCHS = 100  # Number of epochs for training
 L_CYCLE = 10  # Cycle loss weight
-L_IDENT = 0.1  # Identity loss 
+L_IDENT = 0.1  # Identity loss
+USE_WEIGHT_DECAY = False # use L2 regularization
 L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
@@ -196,16 +197,24 @@ def main(load_model=False, save_model=True):
     gen_X = Generator(img_channels=3, num_residuals=9)
     gen_Y = Generator(img_channels=3, num_residuals=9)
 
+    weight_decay_disc = 0
+    weight_decay_gen = 0
+    if USE_WEIGHT_DECAY:
+        weight_decay_disc = L_WD_DISC
+        weight_decay_gen = L_WD_GEN
+
     disc_optimizer = optim.Adam(
         list(disc_X.parameters()) + list(disc_Y.parameters()),
         lr=LR,
-        betas=(BETA1, BETA2)
+        betas=(BETA1, BETA2),
+        weight_decay=weight_decay_disc
     )
 
     gen_optimizer = optim.Adam(
         list(gen_X.parameters()) + list(gen_Y.parameters()),
         lr=LR,
-        betas=(BETA1, BETA2)
+        betas=(BETA1, BETA2),
+        weight_decay=weight_decay_gen
     )
 
     L1_loss = nn.L1Loss()
