@@ -252,8 +252,8 @@ def main(load_model=False, save_model=True):
         lr_scheduler_disc = LinearLR(disc_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2) # total_iters=after how many iters to stop the decay
         lr_scheduler_gen = LinearLR(gen_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
     if LR_SCH_CYC:
-        lr_scheduler_disc = CyclicLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC)
-        lr_scheduler_gen = CyclicLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC)
+        lr_scheduler_disc = CyclicLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
+        lr_scheduler_gen = CyclicLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
 
 
     for epoch in range(EPOCHS):
