@@ -11,6 +11,7 @@ from generator import Generator
 import csv
 from device import DEVICE
 import os
+from torch.optim.lr_scheduler import LinearLR, CyclicLR
 
 
 LR = 1e-4  # Learning rate
@@ -27,7 +28,11 @@ LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
 ID_LOSS = False  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
-LR_SCH = False  # If True, use LR scheduling
+LR_SCH_LIN = True  # If True, use LR scheduling with linear decay
+LR_SCH_START_FACTOR = 40 # start factor for LR_SCH_STEP (initial LR is multiplied by this and then decreased)
+LR_SCH_CYC = False  # If True, use LR scheduling with cyclic LR
+LR_MIN_CYC = 1e-5 # min for cyclic LR
+LR_MAX_CYC = 1e-1 # max for cyclic LR
 
 TRAIN_DIR = "data/train/"  # Training directory
 TEST_DIR = "data/test/"  # Test directory
@@ -60,7 +65,7 @@ except FileExistsError:
 
 def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE, 
              scaler_disc, scaler_gen, epoch, id_loss=False, weight_reg=False, 
-             lr_sched=None):
+             lr_scheduler_disc=None, lr_scheduler_gen=None):
     
     pbar = tqdm(desc=f"Epoch {epoch}", total=len(loader))
     X_reals = 0
@@ -159,6 +164,9 @@ def train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, opt_disc, opt_gen, L1, MSE,
         pbar.update(1)
 
     pbar.close()
+    if lr_scheduler_disc and lr_scheduler_gen:
+        lr_scheduler_disc.step()
+        lr_scheduler_gen.step()
 
 
 def test(gen_X, gen_Y, loader):
@@ -180,6 +188,9 @@ def test(gen_X, gen_Y, loader):
 
 
 def main(load_model=False, save_model=True):
+    # check correct LR scheduling:
+    assert ((LR_SCH_LIN or LR_SCH_CYC) or (not LR_SCH_LIN and not LR_SCH_CYC))
+
     disc_X = Discriminator(in_channels=3)
     disc_Y = Discriminator(in_channels=3)
     gen_X = Generator(img_channels=3, num_residuals=9)
@@ -228,13 +239,19 @@ def main(load_model=False, save_model=True):
     d_scaler = torch.cuda.amp.GradScaler()
 
     # LR Scheduling
-    lr_scheduler = None
+    if LR_SCH_LIN:
+        lr_scheduler_disc = LinearLR(disc_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2) # total_iters=after how many iters to stop the decay
+        lr_scheduler_gen = LinearLR(gen_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
+    if LR_SCH_CYC:
+        lr_scheduler_disc = LinearLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC)
+        lr_scheduler_gen = LinearLR(disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC)
+
 
     for epoch in range(EPOCHS):
         train_fn(disc_X, disc_Y, gen_X, gen_Y, loader, 
                  disc_optimizer, gen_optimizer, L1_loss, MSE_loss, 
                  d_scaler, g_scaler, epoch, id_loss=ID_LOSS, weight_reg=W_REG,
-                 lr_sched=lr_scheduler)
+                 lr_scheduler_disc=lr_scheduler_disc, lr_scheduler_gen=lr_scheduler_gen)
 
         # Save checkpoint
         if save_model:
@@ -261,7 +278,6 @@ def main(load_model=False, save_model=True):
 
 main(load_model=LOAD, save_model=SAVE)
 # TODO: Weight regularization, remember to normalize by the number of parameters of generator and discriminator
-# TODO: LR scheduling (set it up as an option)
 # TODO: Use a different optimizer than Adam
 # TODO: Add different dataset under data/train and data/test
 # TODO: Implement extension with mask
