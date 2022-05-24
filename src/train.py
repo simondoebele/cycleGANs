@@ -278,7 +278,7 @@ def main(load_model=False, save_model=True):
         train_fn(disc_X, disc_Y, gen_X, gen_Y, loader,
                  disc_optimizer, gen_optimizer, L1_loss, MSE_loss,
                  d_scaler, g_scaler, epoch, id_loss=ID_LOSS, weight_reg=W_REG,
-                 lr_scheduler_disc=lr_scheduler_disc, lr_scheduler_gen=lr_scheduler_gen)
+                 lr_scheduler_disc=None, lr_scheduler_gen=None)
 
         # Save checkpoint
         if save_model:
