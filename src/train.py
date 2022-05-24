@@ -11,7 +11,7 @@ from generator import Generator
 import csv
 from device import DEVICE
 import os
-from torch.optim.lr_scheduler import LinearLR, CyclicLR
+# from torch.optim.lr_scheduler import LinearLR, CyclicLR
 
 
 LR = 1e-4  # Learning rate
@@ -198,7 +198,7 @@ def test(gen_X, gen_Y, loader):
 
 def main(load_model=False, save_model=True):
     # check correct LR scheduling:
-    assert ((LR_SCH_LIN or LR_SCH_CYC) or (not LR_SCH_LIN and not LR_SCH_CYC))
+    # assert ((LR_SCH_LIN or LR_SCH_CYC) or (not LR_SCH_LIN and not LR_SCH_CYC))
 
     disc_X = Discriminator(in_channels=3)
     disc_Y = Discriminator(in_channels=3)
@@ -262,17 +262,17 @@ def main(load_model=False, save_model=True):
     d_scaler = torch.cuda.amp.GradScaler()
 
     # LR Scheduling
-    if LR_SCH_LIN:
-        # total_iters=after how many iters to stop the decay
-        lr_scheduler_disc = LinearLR(
-            disc_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
-        lr_scheduler_gen = LinearLR(
-            gen_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
-    if LR_SCH_CYC:
-        lr_scheduler_disc = CyclicLR(
-            disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
-        lr_scheduler_gen = CyclicLR(
-            gen_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
+    # if LR_SCH_LIN:
+    #     # total_iters=after how many iters to stop the decay
+    #     lr_scheduler_disc = LinearLR(
+    #         disc_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
+    #     lr_scheduler_gen = LinearLR(
+    #         gen_optimizer, start_factor=LR_SCH_START_FACTOR, total_iters=EPOCHS//2)
+    # if LR_SCH_CYC:
+    #     lr_scheduler_disc = CyclicLR(
+    #         disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
+    #     lr_scheduler_gen = CyclicLR(
+    #         gen_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
 
     for epoch in range(EPOCHS):
         train_fn(disc_X, disc_Y, gen_X, gen_Y, loader,
