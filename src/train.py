@@ -27,7 +27,7 @@ L_WD_DISC = 0.0001  # Weight decay for discriminator
 L_WD_GEN = 0.0001  # Weight decay for generator
 LOAD = False  # To load saved model
 SAVE = True  # To save trained model at checkpoint
-ID_LOSS = True  # If True, use id loss
+ID_LOSS = False  # If True, use id loss
 W_REG = False  # If True, use L2 regularization
 LR_SCH_LIN = False  # If True, use LR scheduling with linear decay
 # start factor for LR_SCH_STEP (initial LR is multiplied by this)
@@ -42,7 +42,7 @@ SAVED_IMG = "saved_images/"
 STATS_DIR = "stats/"
 
 # REMEMBER TO CHANGE THESE BETWEEN EXPERIMENTS
-RUN_NAME = "selfie2anime_vanilla"
+RUN_NAME = "anime_optimizer"
 SAVED_GEN_X = f"models/genx_{RUN_NAME}.pth.tar"
 SAVED_GEN_Y = f"models/geny_{RUN_NAME}.pth.tar"
 SAVED_DISC_X = f"models/discx_{RUN_NAME}.pth.tar"
@@ -211,19 +211,25 @@ def main(load_model=False, save_model=True):
         weight_decay_disc = L_WD_DISC
         weight_decay_gen = L_WD_GEN
 
-    disc_optimizer = optim.Adam(
-        list(disc_X.parameters()) + list(disc_Y.parameters()),
-        lr=LR,
-        betas=(BETA1, BETA2),
-        weight_decay=weight_decay_disc
-    )
+    # disc_optimizer = optim.Adam(
+    #     list(disc_X.parameters()) + list(disc_Y.parameters()),
+    #     lr=LR,
+    #     betas=(BETA1, BETA2),
+    #     weight_decay=weight_decay_disc
+    # )
 
-    gen_optimizer = optim.Adam(
-        list(gen_X.parameters()) + list(gen_Y.parameters()),
-        lr=LR,
-        betas=(BETA1, BETA2),
-        weight_decay=weight_decay_gen
-    )
+    # gen_optimizer = optim.Adam(
+    #     list(gen_X.parameters()) + list(gen_Y.parameters()),
+    #     lr=LR,
+    #     betas=(BETA1, BETA2),
+    #     weight_decay=weight_decay_gen
+    # )
+
+    disc_optimizer = optim.SGD(
+        list(disc_X.parameters()) + list(disc_Y.parameters()), lr=LR, momentum=0.9)
+
+    gen_optimizer = optim.SGD(
+        list(gen_X.parameters()) + list(gen_Y.parameters()), lr=LR, momentum=0.9)
 
     L1_loss = nn.L1Loss()
     MSE_loss = nn.MSELoss()
@@ -266,7 +272,7 @@ def main(load_model=False, save_model=True):
         lr_scheduler_disc = CyclicLR(
             disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
         lr_scheduler_gen = CyclicLR(
-            disc_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
+            gen_optimizer, base_lr=LR_MIN_CYC, max_lr=LR_MAX_CYC, cycle_momentum=False)
 
     for epoch in range(EPOCHS):
         train_fn(disc_X, disc_Y, gen_X, gen_Y, loader,
