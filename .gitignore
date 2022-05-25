@@ -4,3 +4,4 @@ src/__pycache__/*
 models/*.tar
 saved_images/*.png
 stats/*.csv
+cloud_results/*
